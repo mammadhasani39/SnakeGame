@@ -92,12 +92,22 @@
     let gameStarted = false;
     let gameMode = '';
     let gameSpeed = 150;
+    let waitingForDirection = true;
+
+    const eatSound = new Audio("data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjI0LjEwNAAAAAAAAAAAAAA//tQxAABHSEFNRTMuMTAwA8MAAAAAAAAAAAAAAAA//ugzAAAA9AAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg");
 
     class Snake {
       constructor() {
-        this.body = [{ x: 5, y: 5 }];
-        this.dir = { x: 1, y: 0 };
+        this.reset();
+      }
+
+      reset() {
+        this.body = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+        this.dir = { x: 0, y: 0 };
         this.length = 1;
+        score = 0;
+        updateScore();
+        waitingForDirection = true;
       }
 
       changeDirection(e) {
@@ -106,9 +116,14 @@
         else if ((k === "arrowdown" || k === "s") && this.dir.y !== -1) this.dir = { x: 0, y: 1 };
         else if ((k === "arrowleft" || k === "a") && this.dir.x !== 1) this.dir = { x: -1, y: 0 };
         else if ((k === "arrowright" || k === "d") && this.dir.x !== -1) this.dir = { x: 1, y: 0 };
+
+        if (this.dir.x !== 0 || this.dir.y !== 0) {
+          waitingForDirection = false;
+        }
       }
 
       move() {
+        if (waitingForDirection) return;
         const head = {
           x: this.body[0].x + this.dir.x,
           y: this.body[0].y + this.dir.y
@@ -128,6 +143,8 @@
         if (this.body[0].x === fruit.x && this.body[0].y === fruit.y) {
           this.length++;
           score++;
+          eatSound.currentTime = 0;
+          eatSound.play();
           updateScore();
           return true;
         }
@@ -141,14 +158,6 @@
           if (head.x === this.body[i].x && head.y === this.body[i].y) return true;
         }
         return false;
-      }
-
-      reset() {
-        this.body = [{ x: 5, y: 5 }];
-        this.dir = { x: 1, y: 0 };
-        this.length = 1;
-        score = 0;
-        updateScore();
       }
     }
 
@@ -169,7 +178,7 @@
     }
 
     function updateScore() {
-      scoreBoard.innerText = `Score: ${score}`;
+      scoreBoard.innerText = `Score: ${score} | ${gameMode}`;
     }
 
     function gameLoop() {
@@ -195,8 +204,6 @@
     function startGame() {
       snake = new Snake();
       fruit = new Fruit();
-      score = 0;
-      updateScore();
       gameOverText.style.display = 'none';
       startMenu.style.display = 'none';
       gameStarted = true;
