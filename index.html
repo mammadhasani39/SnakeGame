@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Snake Game</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
@@ -79,11 +80,31 @@
       font-size: 14px;
       z-index: 3;
     }
+    /* Buttons for mobile controls */
+    #mobileControls {
+      display: none;
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+    .mobile-btn {
+      width: 50px;
+      height: 50px;
+      margin: 5px;
+      background-color: #333;
+      color: #0f0;
+      border: 2px solid #0f0;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div id="mobileWarning" style="display: none;">
-    <p>dadash in bazi bara computer hast</p>
+    <p>This game is not available on mobile devices.</p>
   </div>
   <div id="scoreBoard">Score: 0</div>
   <div id="gameOver">Game Over!<br>Score: 0<br>Mode: Easy<br>Press Enter to Restart</div>
@@ -98,202 +119,216 @@
   </div>
   <canvas id="gameCanvas"></canvas>
 
-  <div id="footer">All rights reserved©</div>
+  <div id="footer">All rights reserved 2025©</div>
+
+  <!-- Mobile Controls -->
+  <div id="mobileControls">
+    <button class="mobile-btn" id="up">↑</button>
+    <button class="mobile-btn" id="left">←</button>
+    <button class="mobile-btn" id="down">↓</button>
+    <button class="mobile-btn" id="right">→</button>
+  </div>
 
   <script>
     if (/Mobi|Android/i.test(navigator.userAgent)) {
-      document.getElementById('mobileWarning').style.display = 'block';
-      document.body.style.backgroundColor = '#000';
-    } else {
-      const canvas = document.getElementById('gameCanvas');
-      const ctx = canvas.getContext('2d');
-      const scoreBoard = document.getElementById('scoreBoard');
-      const gameOverText = document.getElementById('gameOver');
-      const startMenu = document.getElementById('startMenu');
-
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-
-      const scale = 20;
-      const rows = Math.floor(canvas.height / scale);
-      const cols = Math.floor(canvas.width / scale);
-
-      let snake, fruit, score = 0;
-      let intervalId = null;
-      let gameStarted = false;
-      let gameMode = '';
-      let gameSpeed = 150;
-      let directionChosen = false;
-
-      class Snake {
-        constructor() {
-          this.body = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
-          this.dir = { x: 0, y: 0 };
-          this.length = 1;
-        }
-
-        changeDirection(e) {
-          const k = e.key.toLowerCase();
-          if ((k === "arrowup" || k === "w" || k === "ص") && this.dir.y !== 1) this.dir = { x: 0, y: -1 };
-          else if ((k === "arrowdown" || k === "s" || k === "س") && this.dir.y !== -1) this.dir = { x: 0, y: 1 };
-          else if ((k === "arrowleft" || k === "a" || k === "ش") && this.dir.x !== 1) this.dir = { x: -1, y: 0 };
-          else if ((k === "arrowright" || k === "d" || k === "ی") && this.dir.x !== -1) this.dir = { x: 1, y: 0 };
-          directionChosen = true;
-        }
-
-        move() {
-          if (!directionChosen) return;
-          const head = {
-            x: this.body[0].x + this.dir.x,
-            y: this.body[0].y + this.dir.y
-          };
-          this.body.unshift(head);
-          if (this.body.length > this.length) this.body.pop();
-        }
-
-        draw() {
-          ctx.fillStyle = '#0f0';
-          this.body.forEach(p => {
-            ctx.fillRect(p.x * scale, p.y * scale, scale, scale);
-          });
-        }
-
-        eat(fruit) {
-          if (this.body[0].x === fruit.x && this.body[0].y === fruit.y) {
-            this.length++;
-            score++;
-            updateScore();
-            return true;
-          }
-          return false;
-        }
-
-        collided() {
-          const head = this.body[0];
-          if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) return true;
-          for (let i = 1; i < this.body.length; i++) {
-            if (head.x === this.body[i].x && head.y === this.body[i].y) return true;
-          }
-          return false;
-        }
-
-        reset() {
-          this.body = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
-          this.dir = { x: 0, y: 0 };
-          this.length = 1;
-          score = 0;
-          directionChosen = false;
-          updateScore();
-        }
-      }
-
-      class Fruit {
-        constructor() {
-          this.pickLocation();
-        }
-
-        pickLocation() {
-          this.x = Math.floor(Math.random() * cols);
-          this.y = Math.floor(Math.random() * rows);
-        }
-
-        draw() {
-          ctx.fillStyle = 'red';
-          ctx.fillRect(this.x * scale, this.y * scale, scale, scale);
-        }
-      }
-
-      function updateScore() {
-        scoreBoard.innerText = `Score: ${score} | Mode: ${gameMode}`;
-      }
-
-      function gameLoop() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        snake.move();
-        if (snake.eat(fruit)) fruit.pickLocation();
-        snake.draw();
-        fruit.draw();
-
-        if (snake.collided()) {
-          clearInterval(intervalId);
-          gameOverText.style.display = 'block';
-          gameOverText.innerHTML = `Game Over!<br>Score: ${score}<br>Mode: ${gameMode}<br>Press Enter to Restart`;
-          gameStarted = false;
-        }
-      }
-
-      function restartLoop() {
-        clearInterval(intervalId);
-        intervalId = setInterval(gameLoop, gameSpeed);
-      }
-
-      function startGame() {
-        snake = new Snake();
-        fruit = new Fruit();
-        score = 0;
-        updateScore();
-        gameOverText.style.display = 'none';
-        startMenu.style.display = 'none';
-        gameStarted = true;
-        directionChosen = false;
-        restartLoop();
-      }
-
-      document.getElementById('veryEasy').addEventListener('click', () => {
-        gameMode = 'Very Easy';
-        gameSpeed = 150;
-        startGame();
-      });
-
-      document.getElementById('easy').addEventListener('click', () => {
-        gameMode = 'Easy';
-        gameSpeed = 100;
-        startGame();
-      });
-
-      document.getElementById('medium').addEventListener('click', () => {
-        gameMode = 'Medium';
-        gameSpeed = 50;
-        startGame();
-      });
-
-      document.getElementById('hard').addEventListener('click', () => {
-        gameMode = 'Hard';
-        gameSpeed = 30;
-        startGame();
-      });
-
-      document.getElementById('veryHard').addEventListener('click', () => {
-        gameMode = 'Very Hard';
-        gameSpeed = 20;
-        startGame();
-      });
-
-      document.getElementById('extreme').addEventListener('click', () => {
-        gameMode = 'Khaye Mikhad';
-        gameSpeed = 5;
-        startGame();
-      });
-
-      const extremeBtn = document.getElementById('extreme');
-      let originalText = extremeBtn.innerText;
-
-      extremeBtn.addEventListener('mouseenter', () => {
-        extremeBtn.innerText = 'Dadash Koskholi ?';
-      });
-
-      extremeBtn.addEventListener('mouseleave', () => {
-        extremeBtn.innerText = originalText;
-      });
-
-      window.addEventListener('keydown', e => {
-        if (e.key === 'Enter' && gameOverText.style.display === 'block') {
-          startGame();
-        } else if (gameStarted) {
-          snake.changeDirection(e);
-        }
-      });
+      document.getElementById('mobileWarning').style.display = 'none'; // Hide mobile warning
+      document.getElementById('mobileControls').style.display = 'block'; // Show mobile controls
     }
+
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreBoard = document.getElementById('scoreBoard');
+    const gameOverText = document.getElementById('gameOver');
+    const startMenu = document.getElementById('startMenu');
+    const mobileControls = document.getElementById('mobileControls');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const scale = 20;
+    const rows = Math.floor(canvas.height / scale);
+    const cols = Math.floor(canvas.width / scale);
+
+    let snake, fruit, score = 0;
+    let intervalId = null;
+    let gameStarted = false;
+    let gameMode = '';
+    let gameSpeed = 150;
+    let directionChosen = false;
+
+    class Snake {
+      constructor() {
+        this.body = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+        this.dir = { x: 0, y: 0 };
+        this.length = 1;
+      }
+
+      changeDirection(e) {
+        const k = e.key.toLowerCase();
+        if ((k === "arrowup" || k === "w" || k === "ص" || e.target.id === "up") && this.dir.y !== 1) this.dir = { x: 0, y: -1 };
+        else if ((k === "arrowdown" || k === "s" || k === "س" || e.target.id === "down") && this.dir.y !== -1) this.dir = { x: 0, y: 1 };
+        else if ((k === "arrowleft" || k === "a" || k === "ش" || e.target.id === "left") && this.dir.x !== 1) this.dir = { x: -1, y: 0 };
+        else if ((k === "arrowright" || k === "d" || k === "ی" || e.target.id === "right") && this.dir.x !== -1) this.dir = { x: 1, y: 0 };
+        directionChosen = true;
+      }
+
+      move() {
+        if (!directionChosen) return;
+        const head = {
+          x: this.body[0].x + this.dir.x,
+          y: this.body[0].y + this.dir.y
+        };
+        this.body.unshift(head);
+        if (this.body.length > this.length) this.body.pop();
+      }
+
+      draw() {
+        ctx.fillStyle = '#0f0';
+        this.body.forEach(p => {
+          ctx.fillRect(p.x * scale, p.y * scale, scale, scale);
+        });
+      }
+
+      eat(fruit) {
+        if (this.body[0].x === fruit.x && this.body[0].y === fruit.y) {
+          this.length++;
+          score++;
+          updateScore();
+          return true;
+        }
+        return false;
+      }
+
+      collided() {
+        const head = this.body[0];
+        if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) return true;
+        for (let i = 1; i < this.body.length; i++) {
+          if (head.x === this.body[i].x && head.y === this.body[i].y) return true;
+        }
+        return false;
+      }
+
+      reset() {
+        this.body = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+        this.dir = { x: 0, y: 0 };
+        this.length = 1;
+        score = 0;
+        directionChosen = false;
+        updateScore();
+      }
+    }
+
+    class Fruit {
+      constructor() {
+        this.pickLocation();
+      }
+
+      pickLocation() {
+        this.x = Math.floor(Math.random() * cols);
+        this.y = Math.floor(Math.random() * rows);
+      }
+
+      draw() {
+        ctx.fillStyle = 'red';
+        ctx.fillRect(this.x * scale, this.y * scale, scale, scale);
+      }
+    }
+
+    function updateScore() {
+      scoreBoard.innerText = `Score: ${score} | Mode: ${gameMode}`;
+    }
+
+    function gameLoop() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      snake.move();
+      if (snake.eat(fruit)) fruit.pickLocation();
+      snake.draw();
+      fruit.draw();
+
+      if (snake.collided()) {
+        clearInterval(intervalId);
+        gameOverText.style.display = 'block';
+        gameOverText.innerHTML = `Game Over!<br>Score: ${score}<br>Mode: ${gameMode}<br>Press Enter to Restart`;
+        gameStarted = false;
+      }
+    }
+
+    function restartLoop() {
+      clearInterval(intervalId);
+      intervalId = setInterval(gameLoop, gameSpeed);
+    }
+
+    function startGame() {
+      snake = new Snake();
+      fruit = new Fruit();
+      score = 0;
+      updateScore();
+      gameOverText.style.display = 'none';
+      startMenu.style.display = 'none';
+      gameStarted = true;
+      directionChosen = false;
+      restartLoop();
+    }
+
+    document.getElementById('veryEasy').addEventListener('click', () => {
+      gameMode = 'Very Easy';
+      gameSpeed = 150;
+      startGame();
+    });
+
+    document.getElementById('easy').addEventListener('click', () => {
+      gameMode = 'Easy';
+      gameSpeed = 100;
+      startGame();
+    });
+
+    document.getElementById('medium').addEventListener('click', () => {
+      gameMode = 'Medium';
+      gameSpeed = 50;
+      startGame();
+    });
+
+    document.getElementById('hard').addEventListener('click', () => {
+      gameMode = 'Hard';
+      gameSpeed = 25;
+      startGame();
+    });
+
+    document.getElementById('veryHard').addEventListener('click', () => {
+      gameMode = 'Very Hard';
+      gameSpeed = 15;
+      startGame();
+    });
+
+    document.getElementById('extreme').addEventListener('click', () => {
+      gameMode = 'Khaye Mikhad';
+      gameSpeed = 10;
+      startGame();
+    });
+
+    const extremeBtn = document.getElementById('extreme');
+    let originalText = extremeBtn.innerText;
+
+    extremeBtn.addEventListener('mouseenter', () => {
+      extremeBtn.innerText = 'Dadash Koskholi ?';
+    });
+
+    extremeBtn.addEventListener('mouseleave', () => {
+      extremeBtn.innerText = originalText;
+    });
+
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && gameOverText.style.display === 'block') {
+        startGame();
+      } else if (gameStarted) {
+        snake.changeDirection(e);
+      }
+    });
+
+    document.getElementById('up').addEventListener('click', () => snake.changeDirection({ target: { id: 'up' } }));
+    document.getElementById('down').addEventListener('click', () => snake.changeDirection({ target: { id: 'down' } }));
+    document.getElementById('left').addEventListener('click', () => snake.changeDirection({ target: { id: 'left' } }));
+    document.getElementById('right').addEventListener('click', () => snake.changeDirection({ target: { id: 'right' } }));
   </script>
 </body>
 </html>
