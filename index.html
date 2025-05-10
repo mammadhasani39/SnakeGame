@@ -57,6 +57,19 @@
       transform: scale(1.1);
     }
     canvas { display: block; background-color: #000; }
+
+    .shake {
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      40% { transform: translateX(5px); }
+      60% { transform: translateX(-5px); }
+      80% { transform: translateX(5px); }
+      100% { transform: translateX(0); }
+    }
   </style>
 </head>
 <body>
@@ -64,12 +77,12 @@
   <div id="gameOver">Game Over!<br>Score: 0<br>Mode: Easy<br>Press Enter to Restart</div>
   <div id="startMenu">
     <p>Select Difficulty</p>
-    <button id="easy">Easy</button>
-    <button id="medium">Medium</button>
-    <button id="hard">Hard</button>
-    <button id="veryHard">Very Hard</button>
+    <button id="veryEasy">خیلی آسون</button>
+    <button id="easy">آسون</button>
+    <button id="medium">متوسط</button>
+    <button id="hard">سخت</button>
+    <button id="veryHard">خیلی سخت</button>
     <button id="extreme">Khaye Mikhad</button>
-    <button id="impossible">Impossible</button>
   </div>
   <canvas id="gameCanvas"></canvas>
 
@@ -92,22 +105,13 @@
     let gameStarted = false;
     let gameMode = '';
     let gameSpeed = 150;
-    let waitingForDirection = true;
-
-    const eatSound = new Audio("data:audio/mp3;base64,SUQzAwAAAAAAF1RTU0UAAAAPAAADTGF2ZjU2LjI0LjEwNAAAAAAAAAAAAAA//tQxAABHSEFNRTMuMTAwA8MAAAAAAAAAAAAAAAA//ugzAAAA9AAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg");
+    let directionChosen = false;
 
     class Snake {
       constructor() {
-        this.reset();
-      }
-
-      reset() {
         this.body = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
         this.dir = { x: 0, y: 0 };
         this.length = 1;
-        score = 0;
-        updateScore();
-        waitingForDirection = true;
       }
 
       changeDirection(e) {
@@ -116,14 +120,10 @@
         else if ((k === "arrowdown" || k === "s") && this.dir.y !== -1) this.dir = { x: 0, y: 1 };
         else if ((k === "arrowleft" || k === "a") && this.dir.x !== 1) this.dir = { x: -1, y: 0 };
         else if ((k === "arrowright" || k === "d") && this.dir.x !== -1) this.dir = { x: 1, y: 0 };
-
-        if (this.dir.x !== 0 || this.dir.y !== 0) {
-          waitingForDirection = false;
-        }
+        directionChosen = true;
       }
 
       move() {
-        if (waitingForDirection) return;
         const head = {
           x: this.body[0].x + this.dir.x,
           y: this.body[0].y + this.dir.y
@@ -143,8 +143,6 @@
         if (this.body[0].x === fruit.x && this.body[0].y === fruit.y) {
           this.length++;
           score++;
-          eatSound.currentTime = 0;
-          eatSound.play();
           updateScore();
           return true;
         }
@@ -158,6 +156,15 @@
           if (head.x === this.body[i].x && head.y === this.body[i].y) return true;
         }
         return false;
+      }
+
+      reset() {
+        this.body = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
+        this.dir = { x: 0, y: 0 };
+        this.length = 1;
+        score = 0;
+        updateScore();
+        directionChosen = false;
       }
     }
 
@@ -178,10 +185,11 @@
     }
 
     function updateScore() {
-      scoreBoard.innerText = `Score: ${score} | ${gameMode}`;
+      scoreBoard.innerText = `Score: ${score} - ${gameMode}`;
     }
 
     function gameLoop() {
+      if (!directionChosen) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       snake.move();
       if (snake.eat(fruit)) fruit.pickLocation();
@@ -204,46 +212,60 @@
     function startGame() {
       snake = new Snake();
       fruit = new Fruit();
+      score = 0;
+      updateScore();
       gameOverText.style.display = 'none';
       startMenu.style.display = 'none';
       gameStarted = true;
       restartLoop();
     }
 
-    document.getElementById('easy').addEventListener('click', () => {
-      gameMode = 'Easy';
+    document.getElementById('veryEasy').addEventListener('click', () => {
+      gameMode = 'خیلی آسون';
       gameSpeed = 150;
       startGame();
     });
 
-    document.getElementById('medium').addEventListener('click', () => {
-      gameMode = 'Medium';
+    document.getElementById('easy').addEventListener('click', () => {
+      gameMode = 'آسون';
       gameSpeed = 100;
       startGame();
     });
 
-    document.getElementById('hard').addEventListener('click', () => {
-      gameMode = 'Hard';
+    document.getElementById('medium').addEventListener('click', () => {
+      gameMode = 'متوسط';
       gameSpeed = 50;
       startGame();
     });
 
-    document.getElementById('veryHard').addEventListener('click', () => {
-      gameMode = 'Very Hard';
+    document.getElementById('hard').addEventListener('click', () => {
+      gameMode = 'سخت';
       gameSpeed = 25;
+      startGame();
+    });
+
+    document.getElementById('veryHard').addEventListener('click', () => {
+      gameMode = 'خیلی سخت';
+      gameSpeed = 15;
       startGame();
     });
 
     document.getElementById('extreme').addEventListener('click', () => {
       gameMode = 'Khaye Mikhad';
-      gameSpeed = 15;
+      gameSpeed = 5;
       startGame();
     });
 
-    document.getElementById('impossible').addEventListener('click', () => {
-      gameMode = 'Impossible';
-      gameSpeed = 5;
-      startGame();
+    const extremeBtn = document.getElementById('extreme');
+    let originalText = extremeBtn.innerText;
+
+    extremeBtn.addEventListener('mouseenter', () => {
+      extremeBtn.classList.add('shake');
+      extremeBtn.innerText = 'Seriously?! 😵‍💫';
+      setTimeout(() => {
+        extremeBtn.innerText = originalText;
+        extremeBtn.classList.remove('shake');
+      }, 1000);
     });
 
     window.addEventListener('keydown', e => {
