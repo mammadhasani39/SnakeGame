@@ -117,6 +117,7 @@
       const scale = 20;
       const rows = Math.floor(canvas.height / scale);
       const cols = Math.floor(canvas.width / scale);
+      const spacing = 2;
 
       let snake, fruit, score = 0;
       let intervalId = null;
@@ -154,7 +155,12 @@
         draw() {
           ctx.fillStyle = '#0f0';
           this.body.forEach(p => {
-            ctx.fillRect(p.x * scale, p.y * scale, scale, scale);
+            ctx.fillRect(
+              p.x * scale + spacing / 2,
+              p.y * scale + spacing / 2,
+              scale - spacing,
+              scale - spacing
+            );
           });
         }
 
