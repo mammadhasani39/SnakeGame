@@ -88,6 +88,10 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 3;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      width: 240px;
     }
     .mobile-btn {
       width: 50px;
@@ -304,17 +308,6 @@
       gameMode = 'Khaye Mikhad';
       gameSpeed = 10;
       startGame();
-    });
-
-    const extremeBtn = document.getElementById('extreme');
-    let originalText = extremeBtn.innerText;
-
-    extremeBtn.addEventListener('mouseenter', () => {
-      extremeBtn.innerText = 'Dadash Koskholi ?';
-    });
-
-    extremeBtn.addEventListener('mouseleave', () => {
-      extremeBtn.innerText = originalText;
     });
 
     window.addEventListener('keydown', e => {
