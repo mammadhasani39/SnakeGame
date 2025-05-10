@@ -57,19 +57,6 @@
       transform: scale(1.1);
     }
     canvas { display: block; background-color: #000; }
-
-    .shake {
-      animation: shake 0.4s;
-    }
-
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      20% { transform: translateX(-5px); }
-      40% { transform: translateX(5px); }
-      60% { transform: translateX(-5px); }
-      80% { transform: translateX(5px); }
-      100% { transform: translateX(0); }
-    }
   </style>
 </head>
 <body>
@@ -77,11 +64,11 @@
   <div id="gameOver">Game Over!<br>Score: 0<br>Mode: Easy<br>Press Enter to Restart</div>
   <div id="startMenu">
     <p>Select Difficulty</p>
-    <button id="veryEasy">خیلی آسون</button>
-    <button id="easy">آسون</button>
-    <button id="medium">متوسط</button>
-    <button id="hard">سخت</button>
-    <button id="veryHard">خیلی سخت</button>
+    <button id="veryEasy">Very Easy</button>
+    <button id="easy">Easy</button>
+    <button id="medium">Medium</button>
+    <button id="hard">Hard</button>
+    <button id="veryHard">Very Hard</button>
     <button id="extreme">Khaye Mikhad</button>
   </div>
   <canvas id="gameCanvas"></canvas>
@@ -124,6 +111,7 @@
       }
 
       move() {
+        if (!directionChosen) return;
         const head = {
           x: this.body[0].x + this.dir.x,
           y: this.body[0].y + this.dir.y
@@ -163,8 +151,8 @@
         this.dir = { x: 0, y: 0 };
         this.length = 1;
         score = 0;
-        updateScore();
         directionChosen = false;
+        updateScore();
       }
     }
 
@@ -185,11 +173,10 @@
     }
 
     function updateScore() {
-      scoreBoard.innerText = `Score: ${score} - ${gameMode}`;
+      scoreBoard.innerText = `Score: ${score} | Mode: ${gameMode}`;
     }
 
     function gameLoop() {
-      if (!directionChosen) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       snake.move();
       if (snake.eat(fruit)) fruit.pickLocation();
@@ -217,42 +204,43 @@
       gameOverText.style.display = 'none';
       startMenu.style.display = 'none';
       gameStarted = true;
+      directionChosen = false;
       restartLoop();
     }
 
     document.getElementById('veryEasy').addEventListener('click', () => {
-      gameMode = 'خیلی آسون';
+      gameMode = 'Very Easy';
       gameSpeed = 150;
       startGame();
     });
 
     document.getElementById('easy').addEventListener('click', () => {
-      gameMode = 'آسون';
+      gameMode = 'Easy';
       gameSpeed = 100;
       startGame();
     });
 
     document.getElementById('medium').addEventListener('click', () => {
-      gameMode = 'متوسط';
+      gameMode = 'Medium';
       gameSpeed = 50;
       startGame();
     });
 
     document.getElementById('hard').addEventListener('click', () => {
-      gameMode = 'سخت';
+      gameMode = 'Hard';
       gameSpeed = 25;
       startGame();
     });
 
     document.getElementById('veryHard').addEventListener('click', () => {
-      gameMode = 'خیلی سخت';
+      gameMode = 'Very Hard';
       gameSpeed = 15;
       startGame();
     });
 
     document.getElementById('extreme').addEventListener('click', () => {
       gameMode = 'Khaye Mikhad';
-      gameSpeed = 5;
+      gameSpeed = 10;
       startGame();
     });
 
@@ -260,12 +248,11 @@
     let originalText = extremeBtn.innerText;
 
     extremeBtn.addEventListener('mouseenter', () => {
-      extremeBtn.classList.add('shake');
-      extremeBtn.innerText = 'Seriously?! 😵‍💫';
-      setTimeout(() => {
-        extremeBtn.innerText = originalText;
-        extremeBtn.classList.remove('shake');
-      }, 1000);
+      extremeBtn.innerText = 'Dadash Koskholi ?';
+    });
+
+    extremeBtn.addEventListener('mouseleave', () => {
+      extremeBtn.innerText = originalText;
     });
 
     window.addEventListener('keydown', e => {
