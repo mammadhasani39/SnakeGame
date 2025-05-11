@@ -94,7 +94,7 @@
     <button id="medium">Medium</button>
     <button id="hard">Hard</button>
     <button id="veryHard">Very Hard</button>
-    <button id="extreme">Khaye Mikhad !</button>
+    <button id="extreme">Impossible</button>
   </div>
   <canvas id="gameCanvas"></canvas>
 
@@ -276,7 +276,7 @@
       });
 
       document.getElementById('extreme').addEventListener('click', () => {
-        gameMode = 'Khaye Mikhad !';
+        gameMode = 'Impossible';
         gameSpeed = 5;
         startGame();
       });
@@ -285,7 +285,7 @@
       let originalText = extremeBtn.innerText;
 
       extremeBtn.addEventListener('mouseenter', () => {
-        extremeBtn.innerText = 'Dadash Koskholi ?';
+        extremeBtn.innerText = "Don't Click !";
       });
 
       extremeBtn.addEventListener('mouseleave', () => {
