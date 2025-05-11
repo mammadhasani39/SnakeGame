@@ -95,9 +95,9 @@
     <button id="hard">Hard</button>
     <button id="veryHard">Very Hard</button>
     <button id="extreme">Impossible</button>
+    <button id="iran">Iran</button>
   </div>
   <canvas id="gameCanvas"></canvas>
-
   <div id="footer">All rights reserved©</div>
 
   <script>
@@ -247,49 +247,47 @@
 
       document.getElementById('veryEasy').addEventListener('click', () => {
         gameMode = 'Very Easy';
-        gameSpeed = 150;
+        gameSpeed = 125;
         startGame();
       });
-
       document.getElementById('easy').addEventListener('click', () => {
         gameMode = 'Easy';
         gameSpeed = 100;
         startGame();
       });
-
       document.getElementById('medium').addEventListener('click', () => {
         gameMode = 'Medium';
-        gameSpeed = 50;
+        gameSpeed = 75;
         startGame();
       });
-
       document.getElementById('hard').addEventListener('click', () => {
         gameMode = 'Hard';
-        gameSpeed = 30;
+        gameSpeed = 35;
         startGame();
       });
-
       document.getElementById('veryHard').addEventListener('click', () => {
         gameMode = 'Very Hard';
         gameSpeed = 20;
         startGame();
       });
-
       document.getElementById('extreme').addEventListener('click', () => {
         gameMode = 'Impossible';
-        gameSpeed = 5;
+        gameSpeed = 10;
         startGame();
       });
-
-      const extremeBtn = document.getElementById('extreme');
-      let originalText = extremeBtn.innerText;
-
-      extremeBtn.addEventListener('mouseenter', () => {
-        extremeBtn.innerText = "Don't Click !";
+      document.getElementById('iran').addEventListener('click', () => {
+        gameMode = 'Iran';
+        gameSpeed = 1;
+        startGame();
       });
-
-      extremeBtn.addEventListener('mouseleave', () => {
-        extremeBtn.innerText = originalText;
+      
+      const iranBtn = document.getElementById('iran');
+      let iranOriginalText = iranBtn.innerText;
+      iranBtn.addEventListener('mouseenter', () => {
+        iranBtn.innerText = "Don't Click !";
+      });
+      iranBtn.addEventListener('mouseleave', () => {
+        iranBtn.innerText = iranOriginalText;
       });
 
       window.addEventListener('keydown', e => {
