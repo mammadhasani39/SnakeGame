@@ -6,65 +6,36 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
     body, html { width: 100%; height: 100%; background-color: #000; overflow: hidden; }
-    #scoreBoard {
+    canvas { display: block; background-color: #000; }
+    #scoreBoard, #gameOver, #startMenu, #footer {
       position: absolute;
-      top: 10px;
+      z-index: 2;
       color: #0f0;
       font-size: 24px;
-      z-index: 1;
-      left: 20px;
-    }
-    #gameOver {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      color: red;
-      font-size: 32px;
-      display: none;
-      z-index: 2;
-      background-color: rgba(0, 0, 0, 0.8);
-      padding: 20px 40px;
-      border: 2px solid red;
-      border-radius: 10px;
       text-align: center;
+    }
+    #scoreBoard { top: 10px; left: 20px; }
+    #gameOver {
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.8); border: 2px solid red;
+      color: red; font-size: 32px; padding: 20px 40px; border-radius: 10px; display: none;
     }
     #startMenu {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      color: #0f0;
-      font-size: 24px;
-      z-index: 2;
-      background-color: rgba(0, 0, 0, 0.8);
-      padding: 20px 40px;
-      border: 2px solid #0f0;
-      border-radius: 10px;
-      text-align: center;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.8); border: 2px solid #0f0;
+      padding: 20px 40px; border-radius: 10px;
     }
     #startMenu button {
-      margin: 10px;
-      font-size: 20px;
-      padding: 15px;
-      cursor: pointer;
-      border: 2px solid #0f0;
-      background-color: black;
-      color: #0f0;
+      margin: 10px; font-size: 20px; padding: 15px;
+      cursor: pointer; border: 2px solid #0f0;
+      background-color: black; color: #0f0;
       border-radius: 10px;
-      transition: background-color 0.3s, transform 0.2s;
     }
     #startMenu button:hover {
       background-color: #333;
       transform: scale(1.1);
     }
-    canvas { display: block; background-color: #000; }
-    #footer {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      color: #888;
-      font-size: 14px;
-      z-index: 3;
-    }
+    #footer { bottom: 10px; left: 10px; font-size: 14px; color: #888; }
   </style>
 </head>
 <body>
@@ -94,8 +65,9 @@
     canvas.height = window.innerHeight;
 
     const scale = 20;
-    const rows = Math.floor(canvas.height / scale);
-    const cols = Math.floor(canvas.width / scale);
+    const wallOffset = 10;
+    const rows = Math.floor((canvas.height - wallOffset * 2) / scale);
+    const cols = Math.floor((canvas.width - wallOffset * 2) / scale);
     const spacing = 2;
 
     let snake, fruit, score = 0;
@@ -113,7 +85,6 @@
       }
 
       changeDirection(e) {
-        if (directionChosen) return;
         const k = e.key.toLowerCase();
         if ((k === "arrowup" || k === "w" || k === "ص") && this.dir.y !== 1) this.dir = { x: 0, y: -1 };
         else if ((k === "arrowdown" || k === "s" || k === "س") && this.dir.y !== -1) this.dir = { x: 0, y: 1 };
@@ -136,8 +107,8 @@
         ctx.fillStyle = '#0f0';
         this.body.forEach(p => {
           ctx.fillRect(
-            p.x * scale + spacing / 2,
-            p.y * scale + spacing / 2,
+            wallOffset + p.x * scale + spacing / 2,
+            wallOffset + p.y * scale + spacing / 2,
             scale - spacing,
             scale - spacing
           );
@@ -183,14 +154,27 @@
         while (!valid) {
           this.x = Math.floor(Math.random() * cols);
           this.y = Math.floor(Math.random() * rows);
-          valid = !snake.body.some(p => p.x === this.x && p.y === this.y);
+          valid = !snake?.body.some(p => p.x === this.x && p.y === this.y);
         }
       }
 
       draw() {
         ctx.fillStyle = 'red';
-        ctx.fillRect(this.x * scale, this.y * scale, scale, scale);
+        ctx.fillRect(
+          wallOffset + this.x * scale,
+          wallOffset + this.y * scale,
+          scale,
+          scale
+        );
       }
+    }
+
+    function drawWalls() {
+      ctx.fillStyle = '#0f0';
+      ctx.fillRect(wallOffset, wallOffset, canvas.width - wallOffset * 2, 2); // top
+      ctx.fillRect(wallOffset, canvas.height - wallOffset - 2, canvas.width - wallOffset * 2, 2); // bottom
+      ctx.fillRect(wallOffset, wallOffset, 2, canvas.height - wallOffset * 2); // left
+      ctx.fillRect(canvas.width - wallOffset - 2, wallOffset, 2, canvas.height - wallOffset * 2); // right
     }
 
     function updateScore() {
@@ -199,7 +183,7 @@
 
     function gameLoop() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      directionChosen = false;
+      drawWalls();
       snake.move();
       if (snake.eat(fruit)) fruit.pickLocation();
       snake.draw();
@@ -230,50 +214,18 @@
       restartLoop();
     }
 
-    document.getElementById('veryEasy').addEventListener('click', () => {
-      gameMode = 'Very Easy';
-      gameSpeed = 125;
-      startGame();
-    });
-    document.getElementById('easy').addEventListener('click', () => {
-      gameMode = 'Easy';
-      gameSpeed = 100;
-      startGame();
-    });
-    document.getElementById('medium').addEventListener('click', () => {
-      gameMode = 'Medium';
-      gameSpeed = 75;
-      startGame();
-    });
-    document.getElementById('hard').addEventListener('click', () => {
-      gameMode = 'Hard';
-      gameSpeed = 35;
-      startGame();
-    });
-    document.getElementById('veryHard').addEventListener('click', () => {
-      gameMode = 'Very Hard';
-      gameSpeed = 20;
-      startGame();
-    });
-    document.getElementById('extreme').addEventListener('click', () => {
-      gameMode = 'Impossible';
-      gameSpeed = 10;
-      startGame();
-    });
-    document.getElementById('iran').addEventListener('click', () => {
-      gameMode = 'Iran';
-      gameSpeed = 1;
-      startGame();
-    });
+    document.getElementById('veryEasy').onclick = () => { gameMode = 'Very Easy'; gameSpeed = 125; startGame(); };
+    document.getElementById('easy').onclick = () => { gameMode = 'Easy'; gameSpeed = 100; startGame(); };
+    document.getElementById('medium').onclick = () => { gameMode = 'Medium'; gameSpeed = 75; startGame(); };
+    document.getElementById('hard').onclick = () => { gameMode = 'Hard'; gameSpeed = 35; startGame(); };
+    document.getElementById('veryHard').onclick = () => { gameMode = 'Very Hard'; gameSpeed = 20; startGame(); };
+    document.getElementById('extreme').onclick = () => { gameMode = 'Impossible'; gameSpeed = 10; startGame(); };
+    document.getElementById('iran').onclick = () => { gameMode = 'Iran'; gameSpeed = 1; startGame(); };
 
     const iranBtn = document.getElementById('iran');
-    let iranOriginalText = iranBtn.innerText;
-    iranBtn.addEventListener('mouseenter', () => {
-      iranBtn.innerText = "Don't Click !";
-    });
-    iranBtn.addEventListener('mouseleave', () => {
-      iranBtn.innerText = iranOriginalText;
-    });
+    const iranOriginalText = iranBtn.innerText;
+    iranBtn.addEventListener('mouseenter', () => iranBtn.innerText = "Don't Click !");
+    iranBtn.addEventListener('mouseleave', () => iranBtn.innerText = iranOriginalText);
 
     window.addEventListener('keydown', e => {
       if (e.key === 'Enter' && gameOverText.style.display === 'block') {
