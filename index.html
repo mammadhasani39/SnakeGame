@@ -7,7 +7,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
     body, html { width: 100%; height: 100%; background-color: #000; overflow: hidden; }
     canvas { display: block; background-color: #000; }
-    #scoreBoard, #gameOver, #startMenu, #footer {
+    #scoreBoard, #gameOver, #startMenu {
       position: absolute;
       z-index: 2;
       color: #0f0;
@@ -35,7 +35,6 @@
       background-color: #333;
       transform: scale(1.1);
     }
-    #footer { bottom: 10px; left: 10px; font-size: 14px; color: #888; }
   </style>
 </head>
 <body>
@@ -49,10 +48,8 @@
     <button id="hard">Hard</button>
     <button id="veryHard">Very Hard</button>
     <button id="extreme">Impossible</button>
-    <button id="iran">Iran</button>
   </div>
   <canvas id="gameCanvas"></canvas>
-  <div id="footer">All rights reserved©</div>
 
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -171,10 +168,10 @@
 
     function drawWalls() {
       ctx.fillStyle = '#0f0';
-      ctx.fillRect(wallOffset, wallOffset, canvas.width - wallOffset * 2, 2); // top
-      ctx.fillRect(wallOffset, canvas.height - wallOffset - 2, canvas.width - wallOffset * 2, 2); // bottom
-      ctx.fillRect(wallOffset, wallOffset, 2, canvas.height - wallOffset * 2); // left
-      ctx.fillRect(canvas.width - wallOffset - 2, wallOffset, 2, canvas.height - wallOffset * 2); // right
+      ctx.fillRect(wallOffset, wallOffset, canvas.width - wallOffset * 2, 2);
+      ctx.fillRect(wallOffset, canvas.height - wallOffset - 2, canvas.width - wallOffset * 2, 2);
+      ctx.fillRect(wallOffset, wallOffset, 2, canvas.height - wallOffset * 2);
+      ctx.fillRect(canvas.width - wallOffset - 2, wallOffset, 2, canvas.height - wallOffset * 2);
     }
 
     function updateScore() {
@@ -214,18 +211,12 @@
       restartLoop();
     }
 
-    document.getElementById('veryEasy').onclick = () => { gameMode = 'Very Easy'; gameSpeed = 125; startGame(); };
+    document.getElementById('veryEasy').onclick = () => { gameMode = 'Very Easy'; gameSpeed = 130; startGame(); };
     document.getElementById('easy').onclick = () => { gameMode = 'Easy'; gameSpeed = 100; startGame(); };
-    document.getElementById('medium').onclick = () => { gameMode = 'Medium'; gameSpeed = 75; startGame(); };
-    document.getElementById('hard').onclick = () => { gameMode = 'Hard'; gameSpeed = 35; startGame(); };
-    document.getElementById('veryHard').onclick = () => { gameMode = 'Very Hard'; gameSpeed = 20; startGame(); };
-    document.getElementById('extreme').onclick = () => { gameMode = 'Impossible'; gameSpeed = 10; startGame(); };
-    document.getElementById('iran').onclick = () => { gameMode = 'Iran'; gameSpeed = 1; startGame(); };
-
-    const iranBtn = document.getElementById('iran');
-    const iranOriginalText = iranBtn.innerText;
-    iranBtn.addEventListener('mouseenter', () => iranBtn.innerText = "Don't Click !");
-    iranBtn.addEventListener('mouseleave', () => iranBtn.innerText = iranOriginalText);
+    document.getElementById('medium').onclick = () => { gameMode = 'Medium'; gameSpeed = 70; startGame(); };
+    document.getElementById('hard').onclick = () => { gameMode = 'Hard'; gameSpeed = 30; startGame(); };
+    document.getElementById('veryHard').onclick = () => { gameMode = 'Very Hard'; gameSpeed = 15; startGame(); };
+    document.getElementById('extreme').onclick = () => { gameMode = 'Impossible'; gameSpeed = 1; startGame(); };
 
     window.addEventListener('keydown', e => {
       if (e.key === 'Enter' && gameOverText.style.display === 'block') {
