@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Snake Game</title>
+  <title>بازی مار</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@700&display=swap');
+
     html, body {
       margin: 0;
       padding: 0;
@@ -13,12 +15,14 @@
       overflow: hidden;
       -webkit-user-select: none;
       user-select: none;
+      font-family: 'Vazirmatn', sans-serif;
+      font-weight: bold;
+      direction: rtl;
     }
 
     #app {
       background: #000;
       color: #0f0;
-      font-family: monospace;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -34,6 +38,7 @@
     #score {
       font-size: 22px;
       margin-bottom: 10px;
+      font-weight: bold;
     }
 
     canvas {
@@ -69,6 +74,7 @@
       line-height: 80px;
       user-select: none;
       transition: transform 0.1s;
+      font-weight: bold;
     }
 
     .btn:active {
@@ -77,28 +83,30 @@
 
     #restartBtn {
       display: none;
+      margin-top: 15px;
+      background: #0f0;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 10px 20px;
+      cursor: pointer;
     }
 
     #difficultySelect {
       margin: 10px 0;
       color: #0f0;
+      font-weight: bold;
     }
 
     select {
       background: #000;
       color: #0f0;
       border: 1px solid #0f0;
-      font-family: monospace;
+      font-family: 'Vazirmatn', monospace;
       font-size: 16px;
-    }
-
-    #footer {
-      color: gray;
-      font-size: 14px;
-      font-family: sans-serif;
-      margin-top: 20px;
-      text-align: center;
-      user-select: none;
+      font-weight: bold;
     }
 
     .modal {
@@ -118,10 +126,10 @@
       background: #000;
       border: 2px solid #0f0;
       color: #0f0;
-      font-family: monospace;
       padding: 20px;
       border-radius: 10px;
       text-align: center;
+      font-weight: bold;
     }
 
     .modal-content button {
@@ -133,6 +141,7 @@
       border-radius: 8px;
       cursor: pointer;
       font-size: 16px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -142,18 +151,18 @@
       <tr>
         <td align="center" valign="middle" style="background: #000;">
           <div id="app">
-            <div id="score">Score: 0</div>
+            <div id="score">امتیاز: ۰</div>
 
             <div id="difficultySelect">
-              <label for="difficulty">Difficulty:</label>
+              <label for="difficulty">درجه سختی:</label>
               <select id="difficulty">
-                <option value="100000000000000000000">Possible</option>
-                <option value="250">Very Easy</option>
-                <option value="190">Easy</option>
-                <option value="140" selected>Medium</option>
-                <option value="60">Hard</option>
-                <option value="20">Very Hard</option>
-                <option value="1">Impossible</option>
+                <option value="100000000000000000000">ممکن</option>
+                <option value="250">خیلی آسان</option>
+                <option value="190">آسان</option>
+                <option value="140" selected>متوسط</option>
+                <option value="60">سخت</option>
+                <option value="20">خیلی سخت</option>
+                <option value="1">غیرممکن</option>
               </select>
             </div>
 
@@ -163,12 +172,12 @@
               <div></div>
               <div class="btn" ontouchstart="setDir('up')">↑</div>
               <div></div>
-              <div class="btn" ontouchstart="setDir('left')">←</div>
+              <div class="btn" ontouchstart="setDir('right')">→</div> <!-- دکمه راست -->
               <div class="btn" ontouchstart="setDir('down')">↓</div>
-              <div class="btn" ontouchstart="setDir('right')">→</div>
+              <div class="btn" ontouchstart="setDir('left')">←</div> <!-- دکمه چپ -->
             </div>
 
-            <button id="restartBtn" onclick="resetGame()">Restart</button>
+            <button id="restartBtn" onclick="resetGame()">شروع دوباره</button>
           </div>
         </td>
       </tr>
@@ -177,8 +186,8 @@
 
   <div id="gameOverModal" class="modal">
     <div class="modal-content">
-      <div id="finalScore" style="margin-top: 10px;">Score: 0</div>
-      <button onclick="resetGame()">Restart</button>
+      <div id="finalScore" style="margin-top: 10px;">امتیاز: ۰</div>
+      <button onclick="resetGame()">شروع دوباره</button>
     </div>
   </div>
 
@@ -203,7 +212,7 @@
       started = false;
       score = 0;
       canChangeDir = true;
-      scoreDisplay.textContent = `Score: 0`;
+      scoreDisplay.textContent = `امتیاز: 0`;
       difficultySelect.disabled = false;
       restartBtn.style.display = 'none';
       gameOverModal.style.display = 'none';
@@ -223,9 +232,9 @@
       ) {
         const difficultyLabel = difficultySelect.options[difficultySelect.selectedIndex].text;
         finalScore.innerHTML = `
-          <div>Game Over !</div>
-          <div>Difficualty : ${difficultyLabel}</div>
-          <div>Score : ${score}</div>
+          <div>پایان بازی!</div>
+          <div>درجه سختی: ${difficultyLabel}</div>
+          <div>امتیاز: ${score}</div>
         `;
         gameOverModal.style.display = 'flex';
         return;
@@ -235,7 +244,7 @@
 
       if (head.x === food.x && head.y === food.y) {
         score++;
-        scoreDisplay.textContent = `Score: ${score}`;
+        scoreDisplay.textContent = `امتیاز: ${score}`;
         placeFood();
       } else {
         snake.pop();
